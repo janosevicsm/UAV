@@ -454,7 +454,6 @@ int main(void)
     Model redLight("res/light/lightRed.obj");
     Model greenLight("res/light/lightGreen.obj");
     Model whiteLight("res/light/lightWhite.obj");
-    Model water("res/Ocean/Ocean.obj");
 
     Shader unifiedShader("basic.vert", "basic.frag");
     
@@ -565,7 +564,6 @@ int main(void)
     glm::mat4 redLightModel2 = glm::mat4(1.0f);
     glm::mat4 greenLightModel2 = glm::mat4(1.0f);
     glm::mat4 whiteLightModel2 = glm::mat4(1.0f);
-    glm::mat4 waterModel = glm::mat4(1.0f);
 
     model1 = glm::translate(model1, glm::vec3(drone1X, drone1Y, drone1Z));
     model2 = glm::translate(model2, glm::vec3(drone2X, drone2Y, drone2Z));
@@ -583,9 +581,6 @@ int main(void)
     greenLightModel2 = glm::scale(greenLightModel2, glm::vec3(0.2, 0.2, 0.2));
     whiteLightModel2 = glm::translate(model2, glm::vec3(0.0, 0.0, droneSize / 5.5));
     whiteLightModel2 = glm::scale(whiteLightModel2, glm::vec3(0.2, 0.2, 0.2));
-
-    waterModel = glm::translate(waterModel, glm::vec3(1.5, 0.1, -1.2));
-    waterModel = glm::scale(waterModel, glm::vec3(0.1, 0.1, 0.1));
 
     float drone1ViewCenterX;
     float drone1ViewCenterZ;
@@ -1324,7 +1319,6 @@ void drawBatteryBar(Shader shader, unsigned int VAO, unsigned int count, unsigne
     glEnable(GL_CULL_FACE);
 }
 void drawForbiddenZone(Shader shader, unsigned int VAO, unsigned int count) {
-    //glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     shader.use();
@@ -1333,5 +1327,4 @@ void drawForbiddenZone(Shader shader, unsigned int VAO, unsigned int count) {
     glBindVertexArray(0);
     glUseProgram(0);
     glDisable(GL_BLEND);
-    //glEnable(GL_CULL_FACE);
 }
