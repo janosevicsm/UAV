@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Shader Files">
+      <UniqueIdentifier>{b5cf16b3-20cd-4547-9df6-96e4de33b0ec}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="drone.frag">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="basic.vert">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="map.frag">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="map.vert">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="circle.vert">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="indicator.frag">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="signature.frag">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="signature.vert">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="droneMinimap.frag">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="droneMinimap.vert">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="bar.frag">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="bar.vert">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="basic.frag">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="mesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
