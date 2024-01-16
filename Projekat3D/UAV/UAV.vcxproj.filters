@@ -63,6 +63,12 @@
     <None Include="basic.frag">
       <Filter>Source Files\Shader Files</Filter>
     </None>
+    <None Include="forbiddenZone.frag">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="forbiddenZone.vert">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mesh.hpp">

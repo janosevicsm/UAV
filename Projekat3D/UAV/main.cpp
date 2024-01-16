@@ -26,13 +26,14 @@ void drawBackgroundTexture(Shader shader, unsigned int texture, unsigned int VAO
 void drawActiveIndicator(Shader shader, unsigned int VAO, unsigned int count, unsigned int newColLoc, bool isActive, bool isDestroyed);
 void drawDroneMinimap(Shader shader, unsigned int VAO, unsigned int count, glm::mat4 model, float y);
 void drawBatteryBar(Shader shader, unsigned int VAO, unsigned int count, unsigned int barLvl, float batteryPercentage);
+void drawForbiddenZone(Shader shader, unsigned int VAO, unsigned int count);
 
 const unsigned int wWidth = 1600;
 const unsigned int wHeight = 800;
 
 const int CRES = 30;
 const float pointSize = 5.0f;
-const int NUMBER_OF_BUFFERS = 15;
+const int NUMBER_OF_BUFFERS = 10;
 const int mapTextureIndex = 0;
 const int drone1ActiveIndicatorIndex = 1;
 const int drone2ActiveIndicatorIndex = 2;
@@ -42,6 +43,7 @@ const int drone2MinimapIndex = 5;
 const int batteryBar1Index = 6;
 const int batteryBar2Index = 7;
 const int signatureIndex = 8;
+const int forbiddenZoneIndex = 9;
 
 float cameraEyeX = 0.0f;
 float cameraEyeY = 4.0f;
@@ -77,6 +79,9 @@ bool isDrone2CameraActive = true;
 
 float drone1BatteryPercentage = 100;
 float drone2BatteryPercentage = 100;
+
+const float forbiddenZoneX = -1.8;
+const float forbiddenZoneY = -3.0;
 
 int main(void)
 {
@@ -172,6 +177,15 @@ int main(void)
 
     unsigned specularMapTexture = loadImageToTexture("res/images/specular_map.png");
     glBindTexture(GL_TEXTURE_2D, specularMapTexture);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    unsigned minimapTexture = loadImageToTexture("res/images/minimap.png");
+    glBindTexture(GL_TEXTURE_2D, minimapTexture);
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -404,6 +418,37 @@ int main(void)
 
     #pragma endregion
 
+    #pragma region ForbiddenZone
+
+    float forbiddenZoneVertices[CRES * 2 + 4];
+    float forbiddenZoneRadius = 1.8;
+
+    forbiddenZoneVertices[0] = forbiddenZoneX;
+    forbiddenZoneVertices[1] = -forbiddenZoneY;
+
+    int f;
+    for (f = 0; f <= CRES; f++)
+    {
+        forbiddenZoneVertices[2 + 2 * f] = forbiddenZoneVertices[0] + forbiddenZoneRadius * cos((3.141592 / 180) * (f * 360 / CRES));
+        forbiddenZoneVertices[2 + 2 * f + 1] = forbiddenZoneVertices[1] + forbiddenZoneRadius * sin((3.141592 / 180) * (f * 360 / CRES));
+    }
+
+    unsigned int forbiddenZoneStride = 2 * sizeof(float);
+
+    glBindVertexArray(VAO[forbiddenZoneIndex]);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[forbiddenZoneIndex]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(forbiddenZoneVertices), forbiddenZoneVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, forbiddenZoneStride, (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glBindVertexArray(0);
+
+    Shader forbiddenZoneShader("forbiddenZone.vert", "forbiddenZone.frag");
+
+    #pragma endregion
+
     Model drone1("res/drone/Drone_obj.obj");
     Model drone2("res/drone/Drone_obj.obj");
     Model redLight("res/light/lightRed.obj");
@@ -420,73 +465,77 @@ int main(void)
     unifiedShader.setInt("material.specular", 1);
     unifiedShader.setFloat("material.shininess", 32.0f);
 
-    glm::vec3 droneLightAmbient = glm::vec3(0.1, 0.1, 0.1);
-    glm::vec3 droneLightDiffuse = glm::vec3(0.8, 0.8, 0.8);
-    glm::vec3 droneLightSpecular = glm::vec3(1.0, 1.0, 1.0);
+    glm::vec3 droneLightAmbient = glm::vec3(0.0, 0.0, 0.0);
+    glm::vec3 droneLightDiffuse = glm::vec3(10.5, 10.5, 10.5);
+    glm::vec3 droneLightSpecular = glm::vec3(5.0, 5.0, 5.0);
+
+    float constant = 1.0f;
+    float linear = 4.0f;
+    float quadratic = 2.0f;
     
     // Drone 1 Red Light
     unifiedShader.setVec3("pointLights[0].color", 1.0f, 0.0f, 0.0f);
     unifiedShader.setVec3("pointLights[0].ambient", droneLightAmbient);
     unifiedShader.setVec3("pointLights[0].diffuse", droneLightDiffuse);
     unifiedShader.setVec3("pointLights[0].specular", droneLightSpecular);
-    unifiedShader.setFloat("pointLights[0].constant", 1.0f);
-    unifiedShader.setFloat("pointLights[0].linear", 0.09f);
-    unifiedShader.setFloat("pointLights[0].quadratic", 0.032f);
+    unifiedShader.setFloat("pointLights[0].constant", constant);
+    unifiedShader.setFloat("pointLights[0].linear", linear);
+    unifiedShader.setFloat("pointLights[0].quadratic", quadratic);
 
     // Drone 1 Green Light
     unifiedShader.setVec3("pointLights[1].color", 0.0f, 1.0f, 0.0f);
     unifiedShader.setVec3("pointLights[1].ambient", droneLightAmbient);
     unifiedShader.setVec3("pointLights[1].diffuse", droneLightDiffuse);
     unifiedShader.setVec3("pointLights[1].specular", droneLightSpecular);
-    unifiedShader.setFloat("pointLights[1].constant", 1.0f);
-    unifiedShader.setFloat("pointLights[1].linear", 0.09f);
-    unifiedShader.setFloat("pointLights[1].quadratic", 0.032f);
+    unifiedShader.setFloat("pointLights[1].constant", constant);
+    unifiedShader.setFloat("pointLights[1].linear", linear);
+    unifiedShader.setFloat("pointLights[1].quadratic", quadratic);
 
     // Drone 1 White Light
-    unifiedShader.setVec3("pointLights[2].color", 1.0f, 1.0f, 1.0f);
+    unifiedShader.setVec3("pointLights[2].color", 0.0f, 0.0f, 0.0f);
     unifiedShader.setVec3("pointLights[2].ambient", droneLightAmbient);
     unifiedShader.setVec3("pointLights[2].diffuse", droneLightDiffuse);
     unifiedShader.setVec3("pointLights[2].specular", droneLightSpecular);
-    unifiedShader.setFloat("pointLights[2].constant", 1.0f);
-    unifiedShader.setFloat("pointLights[2].linear", 0.09f);
-    unifiedShader.setFloat("pointLights[2].quadratic", 0.032f);
+    unifiedShader.setFloat("pointLights[2].constant", constant);
+    unifiedShader.setFloat("pointLights[2].linear", linear);
+    unifiedShader.setFloat("pointLights[2].quadratic", quadratic);
 
     // Drone 2 Red Light
     unifiedShader.setVec3("pointLights[3].color", 1.0f, 0.0f, 0.0f);
     unifiedShader.setVec3("pointLights[3].ambient", droneLightAmbient);
     unifiedShader.setVec3("pointLights[3].diffuse", droneLightDiffuse);
     unifiedShader.setVec3("pointLights[3].specular", droneLightSpecular);
-    unifiedShader.setFloat("pointLights[3].constant", 1.0f);
-    unifiedShader.setFloat("pointLights[3].linear", 0.09f);
-    unifiedShader.setFloat("pointLights[3].quadratic", 0.032f);
+    unifiedShader.setFloat("pointLights[3].constant", constant);
+    unifiedShader.setFloat("pointLights[3].linear", linear);
+    unifiedShader.setFloat("pointLights[3].quadratic", quadratic);
 
     // Drone 2 Green Light
     unifiedShader.setVec3("pointLights[4].color", 0.0f, 1.0f, 0.0f);
     unifiedShader.setVec3("pointLights[4].ambient", droneLightAmbient);
     unifiedShader.setVec3("pointLights[4].diffuse", droneLightDiffuse);
     unifiedShader.setVec3("pointLights[4].specular", droneLightSpecular);
-    unifiedShader.setFloat("pointLights[4].constant", 1.0f);
-    unifiedShader.setFloat("pointLights[4].linear", 0.09f);
-    unifiedShader.setFloat("pointLights[4].quadratic", 0.032f);
+    unifiedShader.setFloat("pointLights[4].constant", constant);
+    unifiedShader.setFloat("pointLights[4].linear", linear);
+    unifiedShader.setFloat("pointLights[4].quadratic", quadratic);
 
     // Drone 2 White Light
-    unifiedShader.setVec3("pointLights[5].color", 1.0f, 1.0f, 1.0f);
+    unifiedShader.setVec3("pointLights[5].color", 0.0f, 0.0f, 0.0f);
     unifiedShader.setVec3("pointLights[5].ambient", droneLightAmbient);
     unifiedShader.setVec3("pointLights[5].diffuse", droneLightDiffuse);
     unifiedShader.setVec3("pointLights[5].specular", droneLightSpecular);
-    unifiedShader.setFloat("pointLights[5].constant", 1.0f);
-    unifiedShader.setFloat("pointLights[5].linear", 0.09f);
-    unifiedShader.setFloat("pointLights[5].quadratic", 0.032f);
+    unifiedShader.setFloat("pointLights[5].constant", constant);
+    unifiedShader.setFloat("pointLights[5].linear", linear);
+    unifiedShader.setFloat("pointLights[5].quadratic", quadratic);
 
     // Main Light
-    unifiedShader.setVec3("pointLights[6].position", 1.45f, 0.05f, -1.45f);
+    unifiedShader.setVec3("pointLights[6].position", 2.4f, 0.05f, -1.8f);
     unifiedShader.setVec3("pointLights[6].color", 1.0f, 1.0f, 1.0f);
     unifiedShader.setVec3("pointLights[6].ambient", 0.2f, 0.2f, 0.2f);
     unifiedShader.setVec3("pointLights[6].diffuse", 2.0f, 2.0f, 2.0f);
     unifiedShader.setVec3("pointLights[6].specular", 2.0f, 2.0f, 2.0f);
     unifiedShader.setFloat("pointLights[6].constant", 1.0f);
-    unifiedShader.setFloat("pointLights[6].linear", 0.00009f);
-    unifiedShader.setFloat("pointLights[6].quadratic", 0.000032f);
+    unifiedShader.setFloat("pointLights[6].linear", 0.09f);
+    unifiedShader.setFloat("pointLights[6].quadratic", 0.032f);
 
     unifiedShader.setVec3("pointLights[7].position", 0.0, 5.0f, 0.0);
     unifiedShader.setVec3("pointLights[7].color", 1.0f, 1.0f, 1.0f);
@@ -942,6 +991,24 @@ int main(void)
             }
         }
 
+        if (isDrone1Active) {
+            float drone1ForbiddenZoneDistance = sqrt(pow(drone1X - forbiddenZoneX, 2) + pow(drone1Z - forbiddenZoneY, 2));
+            if (drone1ForbiddenZoneDistance <= droneSize / 4 + forbiddenZoneRadius) {
+                isDrone1Destroyed = true;
+                isDrone1Active = false;
+                isDrone1CameraActive = false;
+            }
+        }
+
+        if (isDrone2Active) {
+            float drone2ForbiddenZoneDistance = sqrt(pow(drone2X - forbiddenZoneX, 2) + pow(drone2Z - forbiddenZoneY, 2));
+            if (drone2ForbiddenZoneDistance <= droneSize / 4 + forbiddenZoneRadius) {
+                isDrone2Destroyed = true;
+                isDrone2Active = false;
+                isDrone2CameraActive = false;
+            }
+        }
+
         #pragma endregion
 
         #pragma region Light Positions
@@ -1107,7 +1174,7 @@ int main(void)
         unifiedShader.setMat4("uM", mapModel);
         unifiedShader.setMat4("uP", minimapProjection);
         unifiedShader.setMat4("uV", minimapView);
-        drawBackgroundTexture(unifiedShader, mapTexture, VAO[mapTextureIndex]);
+        drawBackgroundTexture(unifiedShader, minimapTexture, VAO[mapTextureIndex]);
 
         if (!isDrone1Destroyed) {
             drawDroneMinimap(droneMinimapShader, VAO[drone1MinimapIndex], sizeof(drone1MinimapVertices) / droneMinimapStride, model1, drone1Y);
@@ -1117,6 +1184,13 @@ int main(void)
         }
 
         unifiedShader.setBool("isMinimap", false);
+
+        forbiddenZoneShader.use();
+        forbiddenZoneShader.setMat4("uM", glm::mat4(1.0f));
+        forbiddenZoneShader.setMat4("uP", minimapProjection);
+        forbiddenZoneShader.setMat4("uV", minimapView);
+        drawForbiddenZone(forbiddenZoneShader, VAO[forbiddenZoneIndex], sizeof(forbiddenZoneVertices) / forbiddenZoneStride);
+
 
         #pragma endregion
 
@@ -1248,4 +1322,16 @@ void drawBatteryBar(Shader shader, unsigned int VAO, unsigned int count, unsigne
     glBindVertexArray(0);
     glUseProgram(0);
     glEnable(GL_CULL_FACE);
+}
+void drawForbiddenZone(Shader shader, unsigned int VAO, unsigned int count) {
+    //glDisable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    shader.use();
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, count);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    glDisable(GL_BLEND);
+    //glEnable(GL_CULL_FACE);
 }

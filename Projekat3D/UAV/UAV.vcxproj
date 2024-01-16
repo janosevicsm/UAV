@@ -29,6 +29,8 @@
     <None Include="circle.vert" />
     <None Include="droneMinimap.frag" />
     <None Include="droneMinimap.vert" />
+    <None Include="forbiddenZone.frag" />
+    <None Include="forbiddenZone.vert" />
     <None Include="indicator.frag" />
     <None Include="basic.frag" />
     <None Include="map.frag" />
