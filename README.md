@@ -45,6 +45,6 @@ This project is an upgraded version of a 2D drone simulation, now extended to a 
 ## Academic Context
 3D Drone Simulation was developed for the purposes of the course [Computer graphics](http://ftn.uns.ac.rs/1758954196/racunarska-grafika).
 ### Course Assistant
-- Nedeljko Tešanović
+- [Nedeljko Tešanović](https://github.com/NedeljkoTesanovic)
 ### Course Professor
 - Dragan Ivetić
